@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -52,6 +53,12 @@ class HomeController extends Controller
 
     public function checkout()
     {
-        return view('checkout');
+        $order = Order::with('product')
+            ->where('user_id', auth()->id())
+            ->whereNull('paid_at')
+            ->latest()
+            ->firstOrFail();
+
+        return view('checkout', compact('order'));
     }
 }
