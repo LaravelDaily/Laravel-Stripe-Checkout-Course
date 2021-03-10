@@ -72,8 +72,7 @@ class HomeController extends Controller
         try {
             $user->createOrGetStripeCustomer();
             $user->updateDefaultPaymentMethod($paymentMethod);
-            $user->charge($order->price, $paymentMethod);
-            $order->update(['paid_at' => now()]);
+            $user->invoiceFor($order->product->name, $order->price);
         } catch (\Exception $ex) {
             return back()->with('error', $ex->getMessage());
         }

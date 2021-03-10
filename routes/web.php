@@ -21,3 +21,5 @@ Route::post('confirm', [App\Http\Controllers\HomeController::class, 'confirm'])-
 Route::get('checkout', [App\Http\Controllers\HomeController::class, 'checkout'])->name('checkout');
 Route::post('pay', [App\Http\Controllers\HomeController::class, 'pay'])->name('pay');
 Route::view('success', 'success')->name('success');
+
+Route::stripeWebhooks('webhook');
