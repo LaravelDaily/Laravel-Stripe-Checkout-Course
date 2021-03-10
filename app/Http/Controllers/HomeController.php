@@ -59,6 +59,25 @@ class HomeController extends Controller
             ->latest()
             ->firstOrFail();
 
-        return view('checkout', compact('order'));
+        $paymentIntent = auth()->user()->createSetupIntent();
+
+        return view('checkout', compact('order', 'paymentIntent'));
+    }
+
+    public function pay(Request $request)
+    {
+        $order = Order::where('user_id', auth()->id())->findOrFail($request->input('order_id'));
+        $user = auth()->user();
+        $paymentMethod = $request->input('payment_method');
+        try {
+            $user->createOrGetStripeCustomer();
+            $user->updateDefaultPaymentMethod($paymentMethod);
+            $user->charge($order->price, $paymentMethod);
+            $order->update(['paid_at' => now()]);
+        } catch (\Exception $ex) {
+            return back()->with('error', $ex->getMessage());
+        }
+
+        return redirect()->route('success');
     }
 }
